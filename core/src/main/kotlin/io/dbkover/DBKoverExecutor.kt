@@ -7,6 +7,7 @@ import org.dbunit.database.DatabaseConnection
 import org.dbunit.dataset.SortedTable
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory
+import java.sql.Connection
 
 class DBKoverExecutor(
     private val executionConfig: ExecutionConfig,
@@ -31,7 +32,13 @@ class DBKoverExecutor(
         }
     }
 
-    private fun getDatabaseConnection() = DatabaseConnection(executionConfig.connectionFactory(), "public").apply {
+    private fun getConfigConnection(): Connection {
+        return executionConfig.connectionFactory().apply {
+            autoCommit = true
+        }
+    }
+
+    private fun getDatabaseConnection() = DatabaseConnection(getConfigConnection(), "public").apply {
         config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true)
         config.setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true)
         config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, PostgresqlDataTypeFactory())
