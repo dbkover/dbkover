@@ -5,6 +5,7 @@ import org.dbunit.DefaultDatabaseTester
 import org.dbunit.database.DatabaseConfig
 import org.dbunit.database.DatabaseConnection
 import org.dbunit.dataset.SortedTable
+import org.dbunit.dataset.filter.DefaultColumnFilter
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory
 import java.sql.Connection
@@ -28,7 +29,11 @@ class DBKoverExecutor(
         dataSetExpected.tableNames.forEach { tableNameExpected ->
             val tableExpected = SortedTable(dataSetExpected.getTable(tableNameExpected))
             val tableCurrent = SortedTable(dataSetCurrent.getTable(tableNameExpected))
-            assertEqualsIgnoreCols(tableExpected, tableCurrent, ignoreColumns)
+            val tableFiltered = DefaultColumnFilter.includedColumnsTable(
+                tableCurrent,
+                tableExpected.tableMetaData.columns
+            )
+            assertEqualsIgnoreCols(tableExpected, tableFiltered, ignoreColumns)
         }
     }
 
