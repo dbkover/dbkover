@@ -1,6 +1,7 @@
 # DBKover
 
 ![](https://img.shields.io/maven-central/v/io.dbkover/core)
+![](https://img.shields.io/github/workflow/status/dbkover/dbkover/Build%20and%20test/main)
 ![](https://img.shields.io/github/license/dbkover/dbkover)
 
 DBKover is a library to enable easy integration testing to databases using DBUnit.
