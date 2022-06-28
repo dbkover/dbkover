@@ -1,5 +1,8 @@
 # DBKover
 
+![](https://img.shields.io/maven-central/v/io.dbkover/core)
+![](https://img.shields.io/github/license/dbkover/dbkover)
+
 DBKover is a library to enable easy integration testing to databases using DBUnit.
 
 DBKover includes the following features:
@@ -11,23 +14,14 @@ DBKover offers integrations with:
 
 ## Installation
 
-Get this package with [JitPack](https://jitpack.io).
-Include JitPack as a repository.
-
-```kotlin
-repositories {
-    maven {
-        url = uri("https://jitpack.io")
-    }
-}
-```
-
-Then include the library as a test dependency.
+Get this package on Maven Central.
+Include the module you need as a test dependency.
+E.g. for JUnit 5, see below example.
 
 ```kotlin
 dependencies {
     // ...
-    testImplementation("com.github.dbkover:dbkover:$dbKoverVersion")
+    testImplementation("io.dbkover:junit5:$dbKoverVersion")
     // ...
 }
 ```
