@@ -17,7 +17,7 @@ class DBKoverTests {
     @Test
     @DBKoverDataSet("test.xml")
     @DBKoverExpected("test.xml")
-    fun someLibraryMethodReturnsTrue() {
+    fun `Can run full test with Junit5`() {
         println("In test")
     }
 
