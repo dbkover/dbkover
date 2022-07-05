@@ -60,15 +60,17 @@ publishing {
     }
 }
 
-signing {
-    val signingKey = props.getProperty(Signing.Key) ?: run {
-        val signingKeyPath = props.getProperty(Signing.KeyPath)
-        file(signingKeyPath!!).readText()
+if (props.hasAnyProperties(Signing.Key, Signing.KeyPath)) {
+    signing {
+        val signingKey = props.getProperty(Signing.Key) ?: run {
+            val signingKeyPath = props.getProperty(Signing.KeyPath)
+            file(signingKeyPath!!).readText()
+        }
+
+        val signingKeyId = props.getProperty(Signing.KeyId)
+        val signingPassword = props.getProperty(Signing.Password)
+
+        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        sign(publishing.publications)
     }
-
-    val signingKeyId = props.getProperty(Signing.KeyId)
-    val signingPassword = props.getProperty(Signing.Password)
-
-    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-    sign(publishing.publications)
 }

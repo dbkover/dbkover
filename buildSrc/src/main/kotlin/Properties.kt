@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.konan.properties.hasProperty
 import java.io.File
 import java.util.Properties
 
@@ -13,6 +14,10 @@ fun Properties.loadFromFile(file: File, required: Boolean = false) {
     if (file.exists()) {
         file.reader().use { load(it) }
     }
+}
+
+fun Properties.hasAnyProperties(vararg propKeys: String): Boolean {
+    return propKeys.toList().any { hasProperty(it) }
 }
 
 object Sonatype {
