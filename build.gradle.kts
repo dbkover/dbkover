@@ -1,5 +1,10 @@
+plugins {
+    id("pl.allegro.tech.build.axion-release") version "1.13.13"
+}
+
 group = "io.dbkover"
-version = "0.1.0"
+version = scmVersion.version
+
 
 subprojects {
     group = rootProject.group
@@ -7,11 +12,5 @@ subprojects {
 
     repositories {
         mavenCentral()
-    }
-}
-
-tasks.create("version") {
-    doLast {
-        println(version)
     }
 }
