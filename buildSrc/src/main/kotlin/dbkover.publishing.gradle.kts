@@ -10,6 +10,7 @@ val props = Properties().apply {
 
     setFromEnvVar(Sonatype.Username, "SONATYPE_USERNAME")
     setFromEnvVar(Sonatype.Password, "SONATYPE_PASSWORD")
+    setFromEnvVar(Sonatype.RepositoryId, "SONATYPE_REPOSITORY_ID")
 
     setFromEnvVar(Signing.Key, "SIGNING_KEY")
     setFromEnvVar(Signing.KeyPath, "SIGNING_KEYPATH")
@@ -21,7 +22,10 @@ publishing {
     repositories {
         maven {
             name = "SonaType"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2")
+            url = props.getProperty(Sonatype.RepositoryId)
+                ?.let { uri("https://s01.oss.sonatype.org/service/local/staging/deployByRepositoryId/$it") }
+                ?: uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2")
+
             credentials {
                 username = props.getProperty(Sonatype.Username)
                 password = props.getProperty(Sonatype.Password)

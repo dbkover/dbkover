@@ -23,6 +23,7 @@ fun Properties.hasAnyProperties(vararg propKeys: String): Boolean {
 object Sonatype {
     val Username = "sonatype.username"
     val Password = "sonatype.password"
+    val RepositoryId = "sonatype.repositoryId"
 }
 
 object Signing {
