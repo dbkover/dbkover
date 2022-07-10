@@ -13,7 +13,7 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    api(project(":core"))
+    implementation(project(":core"))
 
     implementation("org.junit.jupiter:junit-jupiter-api:$junit_version")
     implementation("org.junit.jupiter:junit-jupiter-params:$junit_version")

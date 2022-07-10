@@ -4,6 +4,7 @@ import org.dbunit.Assertion.assertEqualsIgnoreCols
 import org.dbunit.DefaultDatabaseTester
 import org.dbunit.database.DatabaseConfig
 import org.dbunit.database.DatabaseConnection
+import org.dbunit.dataset.CompositeDataSet
 import org.dbunit.dataset.SortedTable
 import org.dbunit.dataset.filter.DefaultColumnFilter
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
@@ -13,11 +14,11 @@ import java.sql.Connection
 class DBKoverExecutor(
     private val executionConfig: ExecutionConfig,
 ) {
-    fun beforeTest(seedPath: String) {
+    fun beforeTest(seedPath: List<String>) {
         val databaseConnection = getDatabaseConnection()
 
         DefaultDatabaseTester(databaseConnection).apply {
-            dataSet = readDataSet(seedPath)
+            dataSet = CompositeDataSet(seedPath.map { readDataSet(it) }.toTypedArray())
             onSetup()
         }
     }
