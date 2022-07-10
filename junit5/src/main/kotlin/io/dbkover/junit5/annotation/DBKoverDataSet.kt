@@ -7,5 +7,8 @@ import java.lang.annotation.*
 @MustBeDocumented
 @Inherited
 annotation class DBKoverDataSet(
-    val path: String
+    @Deprecated(message = "Deprecated for adding multi file support", ReplaceWith("paths"))
+    val path: String = "",
+
+    val paths: Array<String> = [],
 )

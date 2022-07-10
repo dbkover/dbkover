@@ -1,0 +1,12 @@
+<dataset>
+    <test
+            id="1"
+            name="Test 1"
+            description="Descriptive text"
+    />
+
+    <test
+            id="2"
+            name="Test 2"
+    />
+</dataset>

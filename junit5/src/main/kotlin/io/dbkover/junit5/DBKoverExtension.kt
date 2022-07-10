@@ -4,6 +4,7 @@ import io.dbkover.DBKoverExecutor
 import io.dbkover.ExecutionConfig
 import io.dbkover.junit5.annotation.DBKoverExpected
 import io.dbkover.junit5.annotation.DBKoverDataSet
+import io.dbkover.junit5.exception.ConfigValidationException
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
@@ -23,7 +24,13 @@ class DBKoverExtension : BeforeAllCallback, BeforeTestExecutionCallback, AfterTe
         }
 
         val dbKoverDataSet = context.findAnnotationThrowing(DBKoverDataSet::class.java)
-        context.getExecutor().beforeTest(dbKoverDataSet.path)
+
+        if (dbKoverDataSet.path.isNotBlank() && dbKoverDataSet.paths.isNotEmpty()) {
+            throw ConfigValidationException("'path' and 'paths' is mutual exclusive, please use 'paths' only")
+        }
+
+        val paths = dbKoverDataSet.path.takeIf { it.isNotBlank() }?.let { listOf(it) } ?: dbKoverDataSet.paths.toList()
+        context.getExecutor().beforeTest(paths)
     }
 
     override fun afterTestExecution(context: ExtensionContext) {
