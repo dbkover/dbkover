@@ -30,7 +30,7 @@ class DBKoverExtension : BeforeAllCallback, BeforeTestExecutionCallback, AfterTe
         }
 
         val paths = dbKoverDataSet.path.takeIf { it.isNotBlank() }?.let { listOf(it) } ?: dbKoverDataSet.paths.toList()
-        context.getExecutor().beforeTest(paths)
+        context.getExecutor().beforeTest(paths, dbKoverDataSet.cleanBefore, dbKoverDataSet.cleanBeforeIgnoreTables.toList())
     }
 
     override fun afterTestExecution(context: ExtensionContext) {

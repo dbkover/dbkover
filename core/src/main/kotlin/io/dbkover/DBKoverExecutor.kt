@@ -14,8 +14,12 @@ import java.sql.Connection
 class DBKoverExecutor(
     private val executionConfig: ExecutionConfig,
 ) {
-    fun beforeTest(seedPath: List<String>) {
+    fun beforeTest(seedPath: List<String>, cleanTables: Boolean, cleanIgnoreTables: List<String>) {
         val databaseConnection = getDatabaseConnection()
+
+        if (cleanTables) {
+            cleanTables(databaseConnection.connection, cleanIgnoreTables)
+        }
 
         DefaultDatabaseTester(databaseConnection).apply {
             dataSet = CompositeDataSet(seedPath.map { readDataSet(it) }.toTypedArray())
@@ -35,6 +39,18 @@ class DBKoverExecutor(
                 tableExpected.tableMetaData.columns
             )
             assertEqualsIgnoreCols(tableExpected, tableFiltered, ignoreColumns)
+        }
+    }
+
+    private fun cleanTables(connection: Connection, cleanIgnoreTables: List<String>) {
+        val tableNamesResult = connection.metaData.getTables(null, null, "%", arrayOf("TABLE"))
+        val deleteFromTables = mutableListOf<String>()
+        while (tableNamesResult.next()) {
+            deleteFromTables += tableNamesResult.getString("TABLE_NAME")
+        }
+
+        deleteFromTables.filter { !cleanIgnoreTables.contains(it) }.forEach {
+            connection.createStatement().execute("DELETE FROM $it;")
         }
     }
 

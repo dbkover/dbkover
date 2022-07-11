@@ -11,4 +11,15 @@ annotation class DBKoverDataSet(
     val path: String = "",
 
     val paths: Array<String> = [],
+
+    /**
+     * Clean all tables before applying data sets.
+     */
+    val cleanBefore: Boolean = false,
+
+    /**
+     * The tables to ignore when cleaning db prior to test.
+     * This could include metadata tables for migration tools etc.
+     */
+    val cleanBeforeIgnoreTables: Array<String> = [],
 )
