@@ -1,0 +1,45 @@
+{{ define "main" }}
+<section class="section container-fluid mt-n3 pb-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-12 text-center">
+      <h1 class="mt-0">{{ .Title }}</h1>
+    </div>
+    <div class="col-lg-9 col-xl-8 text-center">
+      <p class="lead">{{ .Params.lead | safeHTML }}</p>
+      <a class="btn btn-primary btn-lg px-4 mb-2" href="/docs/{{ if .Site.Params.options.docsVersioning }}{{ .Site.Params.docsVersion }}/{{ end }}introduction/quick-start/" role="button">Get Started</a>
+      <p class="meta">Open-source Apache-2.0 Licensed. <a href="https://github.com/dbkover/dbkover">GitHub {{ $data := getJSON "https://api.github.com/repos/dbkover/dbkover/releases/latest" }}{{ $data.tag_name }}</a></p>
+    </div>
+  </div>
+</section>
+{{ end }}
+
+{{ define "sidebar-prefooter" }}
+<section class="section section-sm">
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-5">
+        <h2 class="h4">⚡️ Fast test development</h2>
+        <p>Write your database integration tests quickly by leveraging DBKovers easy setup and maintenance.</p>
+      </div>
+      <div class="col-lg-5">
+        <h2 class="h4">✅ Assertable database changes</h2>
+        <p>Asserting database manipulations has never been easier. Provide DBKover a data set of how the db should look like and watch the test result.</p>
+      </div>
+      <div class="col-lg-5">
+        <h2 class="h4">⚙️ Framework integrations</h2>
+        <p>DBKover is integrated directly into JUnit 5 lifecyle and more frameworks is on the roadmap.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{{ end }}
+
+{{ define "sidebar-footer" }}
+<section class="section section-sm container-fluid">
+  <div class="row justify-content-center text-center">
+    <div class="col-lg-9">
+      {{- .Content -}}
+    </div>
+  </div>
+</section>
+{{ end }}
