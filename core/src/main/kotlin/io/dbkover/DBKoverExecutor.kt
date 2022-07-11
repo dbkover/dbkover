@@ -55,6 +55,7 @@ class DBKoverExecutor(
             ?.let {
                 FlatXmlDataSetBuilder()
                     .setCaseSensitiveTableNames(true)
+                    .setColumnSensing(true)
                     .build(it)
             }
             ?: throw RuntimeException("Missing dataset at: $path")
