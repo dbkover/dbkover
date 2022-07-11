@@ -69,6 +69,7 @@ jobs:
           username: ${{ secrets.SONATYPE_USERNAME }}
           password: ${{ secrets.SONATYPE_PASSWORD }}
           staging_repository_id: ${{ needs.sonatype-create-repository.outputs.repository-id }}
+          base_url: ${{ env.SONATYPE_BASE_URL }}
 
       - name: Release
         if: ${{ needs.publish.result == 'success' }}
@@ -77,6 +78,7 @@ jobs:
           username: ${{ secrets.SONATYPE_USERNAME }}
           password: ${{ secrets.SONATYPE_PASSWORD }}
           staging_repository_id: ${{ needs.sonatype-create-repository.outputs.repository-id }}
+          base_url: ${{ env.SONATYPE_BASE_URL }}
 
   release:
     runs-on: ubuntu-latest
