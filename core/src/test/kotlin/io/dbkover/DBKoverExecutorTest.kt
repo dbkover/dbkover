@@ -59,6 +59,7 @@ internal class DBKoverExecutorTest {
             it.createStatement().execute("INSERT INTO test (id, name, description) VALUES (1, 'Test 1', 'Descriptive text');")
             it.createStatement().execute("INSERT INTO test (id, name) VALUES (2, 'Test 2');")
             it.createStatement().execute("INSERT INTO test_dont_clean (id, name) VALUES (1, 'Test dont clean');")
+            it.createStatement().execute("INSERT INTO test_foreign (id, test_id) VALUES (1, 1);")
         }
 
         dbKoverExecutor.beforeTest(listOf(), true, listOf("test_dont_clean"))
@@ -105,6 +106,17 @@ internal class DBKoverExecutorTest {
                         id bigint primary key,
                         name varchar(60) not null,
                         description varchar(255)
+                    );
+                """.trimIndent()).execute()
+
+                it.prepareStatement("""
+                    CREATE TABLE test_foreign (
+                        id bigint primary key,
+                        test_id bigint not null,
+                        CONSTRAINT fk_test
+                              FOREIGN KEY(test_id) 
+                        	  REFERENCES test(id)
+
                     );
                 """.trimIndent()).execute()
             }

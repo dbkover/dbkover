@@ -49,8 +49,16 @@ class DBKoverExecutor(
             deleteFromTables += tableNamesResult.getString("TABLE_NAME")
         }
 
-        deleteFromTables.filter { !cleanIgnoreTables.contains(it) }.forEach {
-            connection.createStatement().execute("DELETE FROM $it;")
+        connection.createStatement().use { statement ->
+            statement.execute("SET session_replication_role = replica;")
+
+            try {
+                deleteFromTables.filter { !cleanIgnoreTables.contains(it) }.forEach {
+                    statement.execute("DELETE FROM $it;")
+                }
+            } finally {
+                statement.execute("SET session_replication_role = DEFAULT;")
+            }
         }
     }
 
