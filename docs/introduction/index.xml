@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Introduction on</title><link>https://dbkover.io/docs/introduction/</link><description>Recent content in Introduction on</description><generator>Hugo -- gohugo.io</generator><lastBuildDate>Tue, 06 Oct 2020 08:48:45 +0000</lastBuildDate><atom:link href="https://dbkover.io/docs/introduction/index.xml" rel="self" type="application/rss+xml"/><item><title>Quick Start</title><link>https://dbkover.io/docs/introduction/quick-start/</link><pubDate>Mon, 16 Nov 2020 13:59:39 +0100</pubDate><guid>https://dbkover.io/docs/introduction/quick-start/</guid><description>Requirements #
+JDK 9 JUnit 5 Install DBKover #
+Include DBKover with Gradle or Maven as a test dependency.
+Latest version on Maven Central: Gradle #
+// build.gradle.kts dependencies { // ... testImplementation(&amp;quot;io.dbkover:junit5:$dbKoverVersion&amp;quot;) // ... } Maven #
+&amp;lt;!-- pom.xml --&amp;gt; &amp;lt;dependency&amp;gt; &amp;lt;groupId&amp;gt;io.dbkover&amp;lt;/groupId&amp;gt; &amp;lt;artifactId&amp;gt;junit5&amp;lt;/artifactId&amp;gt; &amp;lt;version&amp;gt;${dbKoverVersion}&amp;lt;/version&amp;gt; &amp;lt;scope&amp;gt;test&amp;lt;/scope&amp;gt; &amp;lt;/dependency&amp;gt; Creating the first test #
+DBKover requires you to annotate the test class with @DBKover annotation. This enables DBKover to inject into the test and apply database changes prior and after tests.</description></item></channel></rss>
