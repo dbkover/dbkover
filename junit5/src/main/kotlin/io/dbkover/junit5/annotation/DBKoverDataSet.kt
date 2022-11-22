@@ -15,7 +15,7 @@ annotation class DBKoverDataSet(
     /**
      * Clean all tables before applying data sets.
      */
-    val cleanBefore: Boolean = false,
+    val cleanBefore: Boolean = true,
 
     /**
      * The tables to ignore when cleaning db prior to test.
