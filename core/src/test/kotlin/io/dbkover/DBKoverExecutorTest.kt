@@ -97,7 +97,8 @@ internal class DBKoverExecutorTest {
                     CREATE TABLE test (
                         id bigint primary key,
                         name varchar(60) not null,
-                        description varchar(255)
+                        description varchar(255),
+                        information jsonb
                     );
                 """.trimIndent()).execute()
 
