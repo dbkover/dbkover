@@ -13,6 +13,10 @@ DBKover includes the following features:
 DBKover offers integrations with:
 - Junit 5
 
+> **Warning**
+> 
+> The API is still during development and may change without further notice until v1.
+
 ## Installation
 
 Get this package on Maven Central.
