@@ -1,5 +1,6 @@
 package io.dbkover
 
+import io.dbkover.postgres.ExtendedPostgresqlDataTypeFactory
 import org.dbunit.Assertion.assertEqualsIgnoreCols
 import org.dbunit.DefaultDatabaseTester
 import org.dbunit.database.DatabaseConfig
@@ -8,7 +9,6 @@ import org.dbunit.dataset.CompositeDataSet
 import org.dbunit.dataset.SortedTable
 import org.dbunit.dataset.filter.DefaultColumnFilter
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
-import org.dbunit.ext.postgresql.PostgresqlDataTypeFactory
 import java.sql.Connection
 
 class DBKoverExecutor(
@@ -71,7 +71,7 @@ class DBKoverExecutor(
     private fun getDatabaseConnection() = DatabaseConnection(getConfigConnection(), "public").apply {
         config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true)
         config.setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true)
-        config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, PostgresqlDataTypeFactory())
+        config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, ExtendedPostgresqlDataTypeFactory())
     }
 
     private fun readDataSet(path: String) =
