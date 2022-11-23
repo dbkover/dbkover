@@ -68,10 +68,15 @@ class DBKoverExecutor(
         }
     }
 
-    private fun getDatabaseConnection() = DatabaseConnection(getConfigConnection(), "public").apply {
-        config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true)
-        config.setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true)
-        config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, ExtendedPostgresqlDataTypeFactory())
+    private fun getDatabaseConnection(): DatabaseConnection {
+        val connection = getConfigConnection()
+        val enums = connection.getEnumTypes()
+
+        return DatabaseConnection(connection, "public").apply {
+            config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true)
+            config.setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true)
+            config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, ExtendedPostgresqlDataTypeFactory(enums))
+        }
     }
 
     private fun readDataSet(path: String) =
@@ -83,4 +88,23 @@ class DBKoverExecutor(
                     .build(it)
             }
             ?: throw RuntimeException("Missing dataset at: $path")
+
+    private fun Connection.getEnumTypes(): List<String> {
+        val enumTypes = mutableListOf<String>()
+
+        val result = prepareStatement(
+            """
+            select t.typname
+            from pg_type t
+            join pg_enum e on t."oid" = e.enumtypid
+            group by t.typname;
+        """.trimIndent()
+        ).executeQuery()
+
+        while (result.next()) {
+            enumTypes.add(result.getString(1))
+        }
+
+        return enumTypes
+    }
 }

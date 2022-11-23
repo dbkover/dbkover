@@ -25,18 +25,24 @@ internal class DBKoverExecutorTest {
         assertEquals(1, result.getLong("id"))
         assertEquals("Test 1", result.getString("name"))
         assertEquals("Descriptive text", result.getString("description"))
+        assertNull(result.getString("information"))
+        assertNull(result.getString("test_enum"))
 
         assertTrue { result.next() }
 
         assertEquals(2, result.getLong("id"))
         assertEquals("Test 2", result.getString("name"))
         assertNull(result.getString("description"))
+        assertEquals("{\"hello\": \"world\"}", result.getString("information"))
+        assertEquals("value_1", result.getString("test_enum"))
 
         assertTrue { result.next() }
 
         assertEquals(3, result.getLong("id"))
         assertEquals("Test 3", result.getString("name"))
         assertEquals("Descriptive text", result.getString("description"))
+        assertEquals("{\"hello\": \"world\"}", result.getString("information"))
+        assertEquals("value_1", result.getString("test_enum"))
 
         assertFalse { result.next() }
     }
@@ -46,7 +52,7 @@ internal class DBKoverExecutorTest {
         db.createConnection("").use {
             it.prepareStatement("DELETE FROM test;").execute()
             it.prepareStatement("INSERT INTO test (id, name, description) VALUES (1, 'Test 1', 'Descriptive text');").execute()
-            it.prepareStatement("INSERT INTO test (id, name) VALUES (2, 'Test 2');").execute()
+            it.prepareStatement("INSERT INTO test (id, name, information, test_enum) VALUES (2, 'Test 2', '{\"hello\": \"world\"}', 'value_1');").execute()
         }
 
         dbKoverExecutor.afterTest("test.xml", arrayOf())
@@ -94,11 +100,16 @@ internal class DBKoverExecutorTest {
 
             db.createConnection("").use {
                 it.prepareStatement("""
+                    CREATE TYPE a_test_enum AS ENUM ('value_1', 'value_2');
+                """.trimIndent()).execute()
+
+                it.prepareStatement("""
                     CREATE TABLE test (
                         id bigint primary key,
                         name varchar(60) not null,
                         description varchar(255),
-                        information jsonb
+                        information jsonb,
+                        test_enum a_test_enum
                     );
                 """.trimIndent()).execute()
 

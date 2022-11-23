@@ -7,7 +7,7 @@ import java.sql.ResultSet
 import java.sql.Types
 
 class JsonbDataType : AbstractDataType("jsonb", Types.OTHER, String::class.java, false) {
-    override fun typeCast(obj: Any?): Any =obj.toString()
+    override fun typeCast(obj: Any?): Any = obj.toString()
 
     override fun getSqlValue(column: Int, resultSet: ResultSet): Any? = resultSet.getString(column)
 
