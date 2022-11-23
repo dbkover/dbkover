@@ -8,5 +8,7 @@
     <test
             id="2"
             name="Test 2"
+            information='{"hello": "world"}'
+            test_enum="value_1"
     />
 </dataset>
