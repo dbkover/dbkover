@@ -13,6 +13,12 @@ annotation class DBKoverDataSet(
     val paths: Array<String> = [],
 
     /**
+     * The schema in the database to apply
+     * the dataset into.
+     */
+    val schema: String = "public",
+
+    /**
      * Clean all tables before applying data sets.
      */
     val cleanBefore: Boolean = true,

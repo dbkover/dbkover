@@ -9,4 +9,10 @@ import java.lang.annotation.*
 annotation class DBKoverExpected(
     val path: String,
     val ignoreColumns: Array<String> = ["id", "created_at", "updated_at"],
+
+    /**
+     * The schema in the database to compare
+     * the dataset with.
+     */
+    val schema: String = "public",
 )

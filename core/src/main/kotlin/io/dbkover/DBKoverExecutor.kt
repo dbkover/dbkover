@@ -14,8 +14,8 @@ import java.sql.Connection
 class DBKoverExecutor(
     private val executionConfig: ExecutionConfig,
 ) {
-    fun beforeTest(seedPath: List<String>, cleanTables: Boolean, cleanIgnoreTables: List<String>) {
-        val databaseConnection = getDatabaseConnection()
+    fun beforeTest(schema: String, seedPath: List<String>, cleanTables: Boolean, cleanIgnoreTables: List<String>) {
+        val databaseConnection = getDatabaseConnection(schema)
 
         if (cleanTables) {
             cleanTables(databaseConnection.connection, cleanIgnoreTables)
@@ -27,9 +27,9 @@ class DBKoverExecutor(
         }
     }
 
-    fun afterTest(expectedPath: String, ignoreColumns: Array<String>) {
+    fun afterTest(schema: String, expectedPath: String, ignoreColumns: Array<String>) {
         val dataSetExpected = readDataSet(expectedPath)
-        val dataSetCurrent = getDatabaseConnection().createDataSet()
+        val dataSetCurrent = getDatabaseConnection(schema).createDataSet()
 
         dataSetExpected.tableNames.forEach { tableNameExpected ->
             val tableExpected = SortedTable(dataSetExpected.getTable(tableNameExpected))
@@ -68,11 +68,11 @@ class DBKoverExecutor(
         }
     }
 
-    private fun getDatabaseConnection(): DatabaseConnection {
+    private fun getDatabaseConnection(schema: String): DatabaseConnection {
         val connection = getConfigConnection()
         val enums = connection.getEnumTypes()
 
-        return DatabaseConnection(connection, "public").apply {
+        return DatabaseConnection(connection, schema).apply {
             config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true)
             config.setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true)
             config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, ExtendedPostgresqlDataTypeFactory(enums))

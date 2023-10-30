@@ -14,7 +14,7 @@ internal class DBKoverExecutorTest {
 
     @Test
     fun `DBKoverExecutor can prepare database prior to test`() {
-        dbKoverExecutor.beforeTest(listOf("test.xml", "test2.xml"), false, listOf())
+        dbKoverExecutor.beforeTest("public", listOf("test.xml", "test2.xml"), false, listOf())
 
         val result = db.createConnection("").use {
             it.prepareStatement("SELECT * FROM test;").executeQuery()
@@ -48,6 +48,24 @@ internal class DBKoverExecutorTest {
     }
 
     @Test
+    fun `DBKoverExecutor can prepare database in specific schema prior to test`() {
+        dbKoverExecutor.beforeTest("test_schema", listOf("test_schema.test.xml"), false, listOf())
+
+        val result = db.createConnection("").use {
+            it.prepareStatement("SELECT * FROM test_schema.test;").executeQuery()
+        }
+
+        assertTrue { result.next() }
+
+        assertEquals(1, result.getLong("id"))
+        assertEquals("Test 1", result.getString("name"))
+        assertEquals("Descriptive text", result.getString("description"))
+        assertEquals("{\"hello\": \"world\"}", result.getString("information"))
+
+        assertFalse { result.next() }
+    }
+
+    @Test
     fun `DBKoverExecutor can check expected database after test`() {
         db.createConnection("").use {
             it.prepareStatement("DELETE FROM test;").execute()
@@ -55,7 +73,17 @@ internal class DBKoverExecutorTest {
             it.prepareStatement("INSERT INTO test (id, name, information, test_enum) VALUES (2, 'Test 2', '{\"hello\": \"world\"}', 'value_1');").execute()
         }
 
-        dbKoverExecutor.afterTest("test.xml", arrayOf())
+        dbKoverExecutor.afterTest("public", "test.xml", arrayOf())
+    }
+
+    @Test
+    fun `DBKoverExecutor can check expected database in specific schema after test`() {
+        db.createConnection("").use {
+            it.prepareStatement("DELETE FROM test_schema.test;").execute()
+            it.prepareStatement("INSERT INTO test_schema.test (id, name, description, information) VALUES (1, 'Test 1', 'Descriptive text', '{\"hello\": \"world\"}');").execute()
+        }
+
+        dbKoverExecutor.afterTest("test_schema", "test_schema.test.xml", arrayOf())
     }
 
     @Test
@@ -68,7 +96,7 @@ internal class DBKoverExecutorTest {
             it.createStatement().execute("INSERT INTO test_foreign (id, test_id) VALUES (1, 1);")
         }
 
-        dbKoverExecutor.beforeTest(listOf(), true, listOf("test_dont_clean"))
+        dbKoverExecutor.beforeTest("public", listOf(), true, listOf("test_dont_clean"))
 
         val result = db.createConnection("").use {
             it.createStatement().executeQuery("SELECT * FROM test;")
@@ -129,6 +157,19 @@ internal class DBKoverExecutorTest {
                               FOREIGN KEY(test_id) 
                         	  REFERENCES test(id)
 
+                    );
+                """.trimIndent()).execute()
+
+                it.prepareStatement("""
+                    CREATE SCHEMA IF NOT EXISTS test_schema;
+                """.trimIndent()).execute()
+
+                it.prepareStatement("""
+                    CREATE TABLE test_schema.test (
+                        id bigint primary key,
+                        name varchar(60) not null,
+                        description varchar(255),
+                        information jsonb
                     );
                 """.trimIndent()).execute()
             }
