@@ -44,17 +44,17 @@ class DBKoverExecutor(
 
     private fun cleanTables(connection: Connection, cleanIgnoreTables: List<String>) {
         val tableNamesResult = connection.metaData.getTables(null, null, "%", arrayOf("TABLE"))
-        val deleteFromTables = mutableListOf<String>()
+        val deleteFromTables = mutableListOf<Pair<String, String>>()
         while (tableNamesResult.next()) {
-            deleteFromTables += tableNamesResult.getString("TABLE_NAME")
+            deleteFromTables += tableNamesResult.getString("TABLE_SCHEM") to tableNamesResult.getString("TABLE_NAME")
         }
 
         connection.createStatement().use { statement ->
             statement.execute("SET session_replication_role = replica;")
 
             try {
-                deleteFromTables.filter { !cleanIgnoreTables.contains(it) }.forEach {
-                    statement.execute("DELETE FROM $it;")
+                deleteFromTables.filter { !cleanIgnoreTables.contains(it.second) }.forEach {
+                    statement.execute("DELETE FROM ${"${it.first}.${it.second}"};")
                 }
             } finally {
                 statement.execute("SET session_replication_role = DEFAULT;")

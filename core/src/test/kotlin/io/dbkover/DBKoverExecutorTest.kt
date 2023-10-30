@@ -52,7 +52,7 @@ internal class DBKoverExecutorTest {
         dbKoverExecutor.beforeTest("test_schema", listOf("test_schema.test.xml"), false, listOf())
 
         val result = db.createConnection("").use {
-            it.prepareStatement("SELECT * FROM test_schema.test;").executeQuery()
+            it.prepareStatement("SELECT * FROM test_schema.test2;").executeQuery()
         }
 
         assertTrue { result.next() }
@@ -79,8 +79,8 @@ internal class DBKoverExecutorTest {
     @Test
     fun `DBKoverExecutor can check expected database in specific schema after test`() {
         db.createConnection("").use {
-            it.prepareStatement("DELETE FROM test_schema.test;").execute()
-            it.prepareStatement("INSERT INTO test_schema.test (id, name, description, information) VALUES (1, 'Test 1', 'Descriptive text', '{\"hello\": \"world\"}');").execute()
+            it.prepareStatement("DELETE FROM test_schema.test2;").execute()
+            it.prepareStatement("INSERT INTO test_schema.test2 (id, name, description, information) VALUES (1, 'Test 1', 'Descriptive text', '{\"hello\": \"world\"}');").execute()
         }
 
         dbKoverExecutor.afterTest("test_schema", "test_schema.test.xml", arrayOf())
@@ -165,7 +165,7 @@ internal class DBKoverExecutorTest {
                 """.trimIndent()).execute()
 
                 it.prepareStatement("""
-                    CREATE TABLE test_schema.test (
+                    CREATE TABLE test_schema.test2 (
                         id bigint primary key,
                         name varchar(60) not null,
                         description varchar(255),
