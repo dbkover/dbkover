@@ -4,5 +4,6 @@
             name="Test 1"
             description="Descriptive text"
             information='{"hello": "world"}'
+            test_enum="value_1"
     />
 </dataset>

@@ -94,15 +94,22 @@ class DBKoverExecutor(
 
         val result = prepareStatement(
             """
-            select t.typname
-            from pg_type t
-            join pg_enum e on t."oid" = e.enumtypid
-            group by t.typname;
-        """.trimIndent()
+                select n.nspname as enum_schema,
+                       t.typname as enum_name
+                from pg_type t
+                join pg_enum e on t.oid = e.enumtypid
+                join pg_catalog.pg_namespace n ON n.oid = t.typnamespace
+                group by n.nspname, t.typname;
+            """.trimIndent()
         ).executeQuery()
 
         while (result.next()) {
-            enumTypes.add(result.getString(1))
+            val schema = result.getString("enum_schema")
+            if (schema != "public") {
+                enumTypes.add("\"${schema}\".\"${result.getString("enum_name")}\"")
+            } else {
+                enumTypes.add(result.getString("enum_name"))
+            }
         }
 
         return enumTypes

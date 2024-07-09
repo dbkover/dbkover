@@ -80,7 +80,7 @@ internal class DBKoverExecutorTest {
     fun `DBKoverExecutor can check expected database in specific schema after test`() {
         db.createConnection("").use {
             it.prepareStatement("DELETE FROM test_schema.test2;").execute()
-            it.prepareStatement("INSERT INTO test_schema.test2 (id, name, description, information) VALUES (1, 'Test 1', 'Descriptive text', '{\"hello\": \"world\"}');").execute()
+            it.prepareStatement("INSERT INTO test_schema.test2 (id, name, description, information, test_enum) VALUES (1, 'Test 1', 'Descriptive text', '{\"hello\": \"world\"}', 'value_1');").execute()
         }
 
         dbKoverExecutor.afterTest("test_schema", "test_schema.test.xml", arrayOf())
@@ -165,11 +165,16 @@ internal class DBKoverExecutorTest {
                 """.trimIndent()).execute()
 
                 it.prepareStatement("""
+                    CREATE TYPE test_schema.b_test_enum AS ENUM ('value_1', 'value_2');
+                """.trimIndent()).execute()
+
+                it.prepareStatement("""
                     CREATE TABLE test_schema.test2 (
                         id bigint primary key,
                         name varchar(60) not null,
                         description varchar(255),
-                        information jsonb
+                        information jsonb,
+                        test_enum test_schema.b_test_enum
                     );
                 """.trimIndent()).execute()
             }
