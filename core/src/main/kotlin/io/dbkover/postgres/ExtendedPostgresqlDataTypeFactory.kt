@@ -9,15 +9,10 @@ class ExtendedPostgresqlDataTypeFactory(
     private val enums: List<String>,
 ) : PostgresqlDataTypeFactory() {
     override fun createDataType(sqlType: Int, sqlTypeName: String?): DataType {
-        return when (sqlTypeName) {
-            "jsonb" -> JsonbDataType()
-            else -> {
-                if (isEnumType(sqlTypeName)) {
-                    return super.createDataType(Types.OTHER, sqlTypeName)
-                } else {
-                    return super.createDataType(sqlType, sqlTypeName)
-                }
-            }
+        return when {
+            sqlTypeName == "jsonb" -> JsonbDataType()
+            isEnumType(sqlTypeName) -> super.createDataType(Types.OTHER, sqlTypeName)
+            else -> super.createDataType(sqlType, sqlTypeName)
         }
     }
 
