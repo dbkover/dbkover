@@ -5,14 +5,8 @@ import org.junit.jupiter.api.extension.*
 import org.junit.platform.commons.util.*
 import java.sql.*
 
-internal fun <T : Annotation> ExtensionContext.hasAnnotation(annotation: Class<T>): Boolean =
-    AnnotationUtils.isAnnotated(element, annotation)
-
-internal fun <T : Annotation> ExtensionContext.findAnnotation(annotation: Class<T>): T? =
-    AnnotationUtils.findAnnotation(element, annotation).orElse(null)
-
-internal fun <T : Annotation> ExtensionContext.findAnnotationThrowing(annotation: Class<T>): T =
-    findAnnotation(annotation) ?: throw RuntimeException("Annotation '${annotation.name}' not present")
+internal fun <T : Annotation> ExtensionContext.findAnnotations(annotation: Class<T>): List<T>
+        = AnnotationUtils.findRepeatableAnnotations(element, annotation)
 
 internal fun ExtensionContext.findDataBaseConnectionFactory(): () -> Connection {
     val connectionMethod = requiredTestClass.findMethodsWithAnnotation(DBKoverConnection::class.java)

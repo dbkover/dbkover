@@ -2,6 +2,7 @@ package io.dbkover.junit5.annotation
 
 import java.lang.annotation.*
 
+@Repeatable
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented

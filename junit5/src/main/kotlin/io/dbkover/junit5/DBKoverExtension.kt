@@ -19,32 +19,39 @@ class DBKoverExtension : BeforeAllCallback, BeforeTestExecutionCallback, AfterTe
     }
 
     override fun beforeTestExecution(context: ExtensionContext) {
-        if (!context.hasAnnotation(DBKoverDataSet::class.java)) {
+        val dbKoverDataSets = context.findAnnotations(DBKoverDataSet::class.java)
+        if (dbKoverDataSets.isEmpty()) {
             return
         }
 
-        val dbKoverDataSet = context.findAnnotationThrowing(DBKoverDataSet::class.java)
+        for (dbKoverDataSet in dbKoverDataSets) {
+            if (dbKoverDataSet.path.isNotBlank() && dbKoverDataSet.paths.isNotEmpty()) {
+                throw ConfigValidationException("'path' and 'paths' is mutual exclusive, please use 'paths' only")
+            }
 
-        if (dbKoverDataSet.path.isNotBlank() && dbKoverDataSet.paths.isNotEmpty()) {
-            throw ConfigValidationException("'path' and 'paths' is mutual exclusive, please use 'paths' only")
+            val paths = dbKoverDataSet.path.takeIf { it.isNotBlank() }?.let { listOf(it) } ?: dbKoverDataSet.paths.toList()
+            context.getExecutor().beforeTest(
+                dbKoverDataSet.schema,
+                paths,
+                dbKoverDataSet.cleanBefore,
+                dbKoverDataSet.cleanBeforeIgnoreTables.toList(),
+            )
         }
-
-        val paths = dbKoverDataSet.path.takeIf { it.isNotBlank() }?.let { listOf(it) } ?: dbKoverDataSet.paths.toList()
-        context.getExecutor().beforeTest(
-            dbKoverDataSet.schema,
-            paths,
-            dbKoverDataSet.cleanBefore,
-            dbKoverDataSet.cleanBeforeIgnoreTables.toList(),
-        )
     }
 
     override fun afterTestExecution(context: ExtensionContext) {
-        if (!context.hasAnnotation(DBKoverExpected::class.java)) {
+        val dbKoverExpecteds = context.findAnnotations(DBKoverExpected::class.java)
+        if (dbKoverExpecteds.isEmpty()) {
             return
         }
 
-        val dbKoverExpected = context.findAnnotationThrowing(DBKoverExpected::class.java)
-        context.getExecutor().afterTest(dbKoverExpected.schema, dbKoverExpected.path, dbKoverExpected.ignoreColumns)
+        for (dbKoverExpected in dbKoverExpecteds) {
+            context.getExecutor().afterTest(
+                dbKoverExpected.schema,
+                dbKoverExpected.path,
+                dbKoverExpected.ignoreColumns,
+            )
+        }
     }
 
     private fun ExtensionContext.setExecutor(factory: () -> DBKoverExecutor) {

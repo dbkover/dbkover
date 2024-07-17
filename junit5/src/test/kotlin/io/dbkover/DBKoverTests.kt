@@ -28,6 +28,15 @@ class DBKoverTests {
         println("In test")
     }
 
+    @Test
+    @DBKoverDataSet(paths = ["test.xml"])
+    @DBKoverDataSet(paths = ["test2.xml"])
+    @DBKoverExpected("test.xml")
+    @DBKoverExpected("test2.xml")
+    fun `Can run full test with Junit5 and multiple annotations`() {
+        println("In test")
+    }
+
     companion object {
         @JvmStatic
         private val db = PostgreSQLContainer<Nothing>("postgres:13-alpine")
