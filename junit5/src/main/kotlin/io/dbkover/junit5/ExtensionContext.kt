@@ -42,9 +42,5 @@ private fun obtainConnectionFromProperties(): Connection? {
         return null
     }
 
-    val props = Properties()
-    props.setProperty("user", username)
-    props.setProperty("password", password)
-
-    return DriverManager.getConnection(url, props)
+    return DriverManager.getConnection(url, username, password)
 }
