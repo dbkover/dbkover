@@ -34,9 +34,9 @@ internal fun ExtensionContext.findDataBaseConnectionFactory(): () -> Connection 
 }
 
 private fun obtainConnectionFromProperties(): Connection? {
-    val url: String? = System.getProperty("datasources.default.url")
-    val username: String? = System.getProperty("datasources.default.username")
-    val password: String? = System.getProperty("datasources.default.password")
+    val url: String? = System.getProperty("dbkover.connection.url")
+    val username: String? = System.getProperty("dbkover.connection.username")
+    val password: String? = System.getProperty("dbkover.connection.password")
 
     if (url == null || username == null || password == null) {
         return null
