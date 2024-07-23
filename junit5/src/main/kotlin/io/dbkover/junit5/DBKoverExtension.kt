@@ -14,7 +14,8 @@ class DBKoverExtension : BeforeAllCallback, BeforeTestExecutionCallback, AfterTe
     override fun beforeAll(context: ExtensionContext) {
         context.setExecutor {
             val connection = context.findDataBaseConnectionFactory()
-            DBKoverExecutor(ExecutionConfig(connection))
+            val connectionConfig = context.findDataBaseConnectionConfig()
+            DBKoverExecutor(ExecutionConfig(connection, connectionConfig))
         }
     }
 
