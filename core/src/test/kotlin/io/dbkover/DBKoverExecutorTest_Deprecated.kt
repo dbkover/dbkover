@@ -6,12 +6,13 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.PostgreSQLContainer
 
-internal class DBKoverExecutorTest {
+@Deprecated("Remove when connectionFactory is removed from ExecutionConfig")
+internal class DBKoverExecutorTest_Deprecated {
 
     private val dbKoverExecutor = DBKoverExecutor(
         ExecutionConfig(
+            { db.createConnection("") },
             null,
-            ConnectionConfig(db.jdbcUrl, db.username, db.password),
         ),
     )
 

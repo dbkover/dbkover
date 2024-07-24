@@ -6,12 +6,12 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.PostgreSQLContainer
 
-internal class DBKoverExecutorTest {
+internal class DBKoverExecutorTest_SystemProperties {
 
     private val dbKoverExecutor = DBKoverExecutor(
         ExecutionConfig(
             null,
-            ConnectionConfig(db.jdbcUrl, db.username, db.password),
+            null,
         ),
     )
 
@@ -128,6 +128,10 @@ internal class DBKoverExecutorTest {
         @BeforeAll
         fun beforeAll() {
             db.start()
+
+            System.setProperty("dbkover.connection.url", db.jdbcUrl)
+            System.setProperty("dbkover.connection.username", db.username)
+            System.setProperty("dbkover.connection.password", db.password)
 
             db.createConnection("").use {
                 it.prepareStatement("""

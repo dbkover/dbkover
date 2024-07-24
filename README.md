@@ -33,15 +33,15 @@ dependencies {
 
 ## Documentation
 
-To use DBKover the test class must be annotated with `@DBKover` and specify a database connection with `@DBKoverConnection`.
+To use DBKover the test class must be annotated with `@DBKover` and specify the database connection settings with `@DBKoverConnectionConfig`.
 
 ```kotlin
 @DBKover
 class SomeDatabaseTest {
     
-    @DBKoverConnection
-    fun getConnect(): Connection {
-        // ...
+    @DBKoverConnectionConfig
+    fun getConnectionConfig(): ConnectionConfig {
+        return ConnectionConfig(url, username, password)
     }
     
 }

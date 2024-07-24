@@ -10,6 +10,7 @@ import org.dbunit.dataset.SortedTable
 import org.dbunit.dataset.filter.DefaultColumnFilter
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder
 import java.sql.Connection
+import java.sql.DriverManager
 
 class DBKoverExecutor(
     private val executionConfig: ExecutionConfig,
@@ -63,9 +64,28 @@ class DBKoverExecutor(
     }
 
     private fun getConfigConnection(): Connection {
-        return executionConfig.connectionFactory().apply {
+        val connection = executionConfig.connectionConfig?.toConnection()
+            ?: executionConfig.connectionFactory?.invoke()
+            ?: getConfigConnectionFromProperties()?.toConnection()
+            ?: throw RuntimeException("Connection not initialized correctly")
+
+        return connection.apply {
             autoCommit = true
         }
+    }
+
+    private fun ConnectionConfig.toConnection() = DriverManager.getConnection(jdbcUrl, username, password)
+
+    private fun getConfigConnectionFromProperties(): ConnectionConfig? {
+        val url: String? = System.getProperty("dbkover.connection.url")
+        val username: String? = System.getProperty("dbkover.connection.username")
+        val password: String? = System.getProperty("dbkover.connection.password")
+
+        if (url == null || username == null || password == null) {
+            return null
+        }
+
+        return ConnectionConfig(url, username, password)
     }
 
     private fun getDatabaseConnection(schema: String): DatabaseConnection {
