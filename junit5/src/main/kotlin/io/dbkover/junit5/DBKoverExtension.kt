@@ -1,5 +1,7 @@
 package io.dbkover.junit5
 
+import io.dbkover.AfterTestConfig
+import io.dbkover.BeforeTestConfig
 import io.dbkover.DBKoverExecutor
 import io.dbkover.ExecutionConfig
 import io.dbkover.junit5.annotation.DBKoverExpected
@@ -14,8 +16,8 @@ class DBKoverExtension : BeforeAllCallback, BeforeTestExecutionCallback, AfterTe
     override fun beforeAll(context: ExtensionContext) {
         context.setExecutor {
             val connection = context.findDataBaseConnectionFactory()
-            val connectionConfig = context.findDataBaseConnectionConfig()
-            DBKoverExecutor(ExecutionConfig(connection, connectionConfig))
+            val connectionConfigs = context.findDataBaseConnectionConfigs()
+            DBKoverExecutor(ExecutionConfig(connection, connectionConfigs = connectionConfigs))
         }
     }
 
@@ -26,17 +28,8 @@ class DBKoverExtension : BeforeAllCallback, BeforeTestExecutionCallback, AfterTe
         }
 
         for (dbKoverDataSet in dbKoverDataSets) {
-            if (dbKoverDataSet.path.isNotBlank() && dbKoverDataSet.paths.isNotEmpty()) {
-                throw ConfigValidationException("'path' and 'paths' is mutual exclusive, please use 'paths' only")
-            }
-
-            val paths = dbKoverDataSet.path.takeIf { it.isNotBlank() }?.let { listOf(it) } ?: dbKoverDataSet.paths.toList()
-            context.getExecutor().beforeTest(
-                dbKoverDataSet.schema,
-                paths,
-                dbKoverDataSet.cleanBefore,
-                dbKoverDataSet.cleanBeforeIgnoreTables.toList(),
-            )
+            dbKoverDataSet.validate()
+            context.getExecutor().beforeTest(dbKoverDataSet.toBeforeTestConfig())
         }
     }
 
@@ -47,13 +40,30 @@ class DBKoverExtension : BeforeAllCallback, BeforeTestExecutionCallback, AfterTe
         }
 
         for (dbKoverExpected in dbKoverExpecteds) {
-            context.getExecutor().afterTest(
-                dbKoverExpected.schema,
-                dbKoverExpected.path,
-                dbKoverExpected.ignoreColumns,
-            )
+            context.getExecutor().afterTest(dbKoverExpected.toBeforeTestConfig())
         }
     }
+
+    private fun DBKoverDataSet.validate() {
+        if (path.isNotBlank() && paths.isNotEmpty()) {
+            throw ConfigValidationException("'path' and 'paths' is mutual exclusive, please use 'paths' only")
+        }
+    }
+
+    private fun DBKoverDataSet.toBeforeTestConfig() = BeforeTestConfig(
+        connection = connection,
+        schema = schema,
+        seedPath = path.takeIf { it.isNotBlank() }?.let { listOf(it) } ?: paths.toList(),
+        cleanTables = cleanBefore,
+        cleanIgnoreTables = cleanBeforeIgnoreTables.toList()
+    )
+
+    private fun DBKoverExpected.toBeforeTestConfig() = AfterTestConfig(
+        connection = connection,
+        schema = schema,
+        expectedPath = path,
+        ignoreColumns = ignoreColumns.toList(),
+    )
 
     private fun ExtensionContext.setExecutor(factory: () -> DBKoverExecutor) {
         val store = getStore(STORE_NAMESPACE)

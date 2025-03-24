@@ -12,6 +12,13 @@ annotation class DBKoverExpected(
     val ignoreColumns: Array<String> = ["id", "created_at", "updated_at"],
 
     /**
+     * The connection to use for the
+     * database operations. Using 'default'
+     * as the fallback connection.
+     */
+    val connection: String = "default",
+
+    /**
      * The schema in the database to compare
      * the dataset with.
      */

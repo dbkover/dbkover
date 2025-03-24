@@ -14,6 +14,13 @@ annotation class DBKoverDataSet(
     val paths: Array<String> = [],
 
     /**
+     * The connection to use for the
+     * database operations. Using 'default'
+     * as the fallback connection.
+     */
+    val connection: String = "default",
+
+    /**
      * The schema in the database to apply
      * the dataset into.
      */

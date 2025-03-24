@@ -3,7 +3,11 @@ package io.dbkover
 import java.sql.Connection
 
 data class ExecutionConfig(
-    @Deprecated("Use connectionConfig instead")
-    val connectionFactory: (() -> Connection)?,
-    val connectionConfig: ConnectionConfig?,
+    @Deprecated("Use connectionConfigs instead")
+    val connectionFactory: (() -> Connection)? = null,
+
+    @Deprecated("Use connectionConfigs instead")
+    val connectionConfig: ConnectionConfig? = null,
+
+    val connectionConfigs: Map<String, ConnectionConfig> = emptyMap(),
 )
