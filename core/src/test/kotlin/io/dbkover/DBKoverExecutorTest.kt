@@ -122,7 +122,7 @@ internal class DBKoverExecutorTest {
 
     companion object {
         @JvmStatic
-        private val db = PostgreSQLContainer<Nothing>("postgres:13-alpine")
+        private val db = PostgreSQLContainer<Nothing>("postgres:16-alpine")
 
         @JvmStatic
         @BeforeAll

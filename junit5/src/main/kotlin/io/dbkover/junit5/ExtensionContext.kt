@@ -11,16 +11,18 @@ import java.sql.Connection
 internal fun <T : Annotation> ExtensionContext.findAnnotations(annotation: Class<T>): List<T>
         = AnnotationUtils.findRepeatableAnnotations(element, annotation)
 
-internal fun ExtensionContext.findDataBaseConnectionConfig(): ConnectionConfig? {
-    val connectionConfigMethod = requiredTestClass.findMethodsWithAnnotation(DBKoverConnectionConfig::class.java)
-        .firstOrNull { it.returnType == ConnectionConfig::class.java }
+internal fun ExtensionContext.findDataBaseConnectionConfigs(): Map<String,ConnectionConfig> {
+    val connectionConfigMethods = requiredTestClass.findMethodsWithAnnotation(DBKoverConnectionConfig::class.java)
+        .filter{ it.returnType == ConnectionConfig::class.java }
 
-    if (connectionConfigMethod?.trySetAccessible() == true) {
-        return connectionConfigMethod.invoke(requiredTestInstance) as ConnectionConfig?
-                ?: throw RuntimeException("Connection not initialized correctly")
-    }
-
-    return null
+    return connectionConfigMethods.mapNotNull { connectionConfigMethod ->
+        val annotation = connectionConfigMethod.getAnnotation(DBKoverConnectionConfig::class.java)
+        if (connectionConfigMethod?.trySetAccessible() == true) {
+            annotation.name to connectionConfigMethod.invoke(requiredTestInstance) as ConnectionConfig
+        } else {
+            null
+        }
+    }.toMap()
 }
 
 internal fun ExtensionContext.findDataBaseConnectionFactory(): (() -> Connection)? {

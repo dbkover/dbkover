@@ -13,24 +13,38 @@ import java.sql.Connection
 import java.sql.DriverManager
 
 class DBKoverExecutor(
-    private val executionConfig: ExecutionConfig,
+    private val executionConfig: ExecutionConfig = ExecutionConfig(),
 ) {
-    fun beforeTest(schema: String, seedPath: List<String>, cleanTables: Boolean, cleanIgnoreTables: List<String>) {
-        val databaseConnection = getDatabaseConnection(schema)
+    private val connectionConfigs = loadConnectionConfigs()
 
-        if (cleanTables) {
-            cleanTables(databaseConnection.connection, cleanIgnoreTables)
+    fun beforeTest(config: BeforeTestConfig) {
+        val databaseConnection = getDatabaseConnection(config.connection, config.schema)
+
+        if (config.cleanTables) {
+            cleanTables(databaseConnection.connection, config.cleanIgnoreTables)
         }
 
         DefaultDatabaseTester(databaseConnection).apply {
-            dataSet = CompositeDataSet(seedPath.map { readDataSet(it) }.toTypedArray())
+            dataSet = CompositeDataSet(config.seedPath.map { readDataSet(it) }.toTypedArray())
             onSetup()
         }
     }
 
-    fun afterTest(schema: String, expectedPath: String, ignoreColumns: Array<String>) {
-        val dataSetExpected = readDataSet(expectedPath)
-        val dataSetCurrent = getDatabaseConnection(schema).createDataSet()
+    @Deprecated("Use beforeTest with BeforeTestConfig", replaceWith = ReplaceWith("beforeTest(config)"))
+    fun beforeTest(schema: String, seedPath: List<String>, cleanTables: Boolean, cleanIgnoreTables: List<String>) {
+        beforeTest(
+            BeforeTestConfig(
+                schema = schema,
+                seedPath = seedPath,
+                cleanTables = cleanTables,
+                cleanIgnoreTables = cleanIgnoreTables
+            )
+        )
+    }
+
+    fun afterTest(config: AfterTestConfig) {
+        val dataSetExpected = readDataSet(config.expectedPath)
+        val dataSetCurrent = getDatabaseConnection(config.connection, config.schema).createDataSet()
 
         dataSetExpected.tableNames.forEach { tableNameExpected ->
             val tableExpected = SortedTable(dataSetExpected.getTable(tableNameExpected))
@@ -39,8 +53,19 @@ class DBKoverExecutor(
                 tableCurrent,
                 tableExpected.tableMetaData.columns
             )
-            assertEqualsIgnoreCols(tableExpected, tableFiltered, ignoreColumns)
+            assertEqualsIgnoreCols(tableExpected, tableFiltered, config.ignoreColumns.toTypedArray())
         }
+    }
+
+    @Deprecated("Use afterTest with AfterTestConfig", replaceWith = ReplaceWith("afterTest(config)"))
+    fun afterTest(schema: String, expectedPath: String, ignoreColumns: Array<String>) {
+        afterTest(
+            AfterTestConfig(
+                schema = schema,
+                expectedPath = expectedPath,
+                ignoreColumns = ignoreColumns.toList(),
+            )
+        )
     }
 
     private fun cleanTables(connection: Connection, cleanIgnoreTables: List<String>) {
@@ -63,11 +88,10 @@ class DBKoverExecutor(
         }
     }
 
-    private fun getConfigConnection(): Connection {
-        val connection = executionConfig.connectionConfig?.toConnection()
+    private fun getConfigConnection(connectionName: String): Connection {
+        val connection = connectionConfigs[connectionName]?.toConnection()
             ?: executionConfig.connectionFactory?.invoke()
-            ?: getConfigConnectionFromProperties()?.toConnection()
-            ?: throw RuntimeException("Connection not initialized correctly")
+            ?: throw RuntimeException("Connection '$connectionName' is not found")
 
         return connection.apply {
             autoCommit = true
@@ -76,10 +100,38 @@ class DBKoverExecutor(
 
     private fun ConnectionConfig.toConnection() = DriverManager.getConnection(jdbcUrl, username, password)
 
-    private fun getConfigConnectionFromProperties(): ConnectionConfig? {
-        val url: String? = System.getProperty("dbkover.connection.url")
-        val username: String? = System.getProperty("dbkover.connection.username")
-        val password: String? = System.getProperty("dbkover.connection.password")
+    private fun loadConnectionConfigs(): Map<String, ConnectionConfig> {
+        val connectionConfigs = mutableMapOf<String, ConnectionConfig>()
+
+        // Fallback for old config
+        buildConnectionConfig("dbkover.connection")?.also {
+            connectionConfigs["default"] = it
+        }
+
+        // Fallback for old config
+        if (executionConfig.connectionConfig != null) {
+            connectionConfigs["default"] = executionConfig.connectionConfig
+        }
+
+        for (propertyName in System.getProperties().propertyNames()) {
+            val key = propertyName.toString()
+            val connectionName = "dbkover\\.connection\\.(.*)\\.url".toRegex().matchEntire(key)
+                ?.groups?.get(1)?.value ?: continue
+
+            buildConnectionConfig("dbkover.connection.$connectionName")?.also {
+                connectionConfigs[connectionName] = it
+            }
+        }
+
+        connectionConfigs += executionConfig.connectionConfigs
+
+        return connectionConfigs
+    }
+
+    private fun buildConnectionConfig(prefix: String): ConnectionConfig? {
+        val url: String? = System.getProperty("$prefix.url")
+        val username: String? = System.getProperty("$prefix.username")
+        val password: String? = System.getProperty("$prefix.password")
 
         if (url == null || username == null || password == null) {
             return null
@@ -88,8 +140,8 @@ class DBKoverExecutor(
         return ConnectionConfig(url, username, password)
     }
 
-    private fun getDatabaseConnection(schema: String): DatabaseConnection {
-        val connection = getConfigConnection()
+    private fun getDatabaseConnection(connectionName: String, schema: String): DatabaseConnection {
+        val connection = getConfigConnection(connectionName)
         val enums = connection.getEnumTypes()
 
         return DatabaseConnection(connection, schema).apply {
