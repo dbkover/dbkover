@@ -1,0 +1,13 @@
+[versions]
+dbunit = "2.8.0"
+junit = "5.8.2"
+testcontainers = "1.20.6"
+
+[libraries]
+dbunit = { module = "org.dbunit:dbunit", version.ref = "dbunit" }
+
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+
+testcontainers-postgres = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
