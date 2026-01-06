@@ -148,6 +148,7 @@ class DBKoverExecutor(
             config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true)
             config.setProperty(DatabaseConfig.FEATURE_CASE_SENSITIVE_TABLE_NAMES, true)
             config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, ExtendedPostgresqlDataTypeFactory(enums))
+            config.setProperty(DatabaseConfig.PROPERTY_ESCAPE_PATTERN, "\"")
         }
     }
 
